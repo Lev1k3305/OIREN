@@ -34,6 +34,17 @@ function updateThemeToggleUI(theme) {
   }
 }
 
+// ---------- Security Helper ----------
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str == null ? '' : String(str);
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ---------- Toast Notification ----------
 let toastEl = null;
 function showToast(text) {
@@ -241,11 +252,11 @@ function renderRecent() {
     <div class="lesson-row">
       <div class="check ${l.status !== 'done' ? 'pending' : ''}">${l.status === 'done' ? '✓' : (l.status === 'progress' ? '…' : '')}</div>
       <div>
-        <div class="lesson-title">${l.title}</div>
-        <div class="lesson-meta">${l.module}</div>
+        <div class="lesson-title">${escapeHTML(l.title)}</div>
+        <div class="lesson-meta">${escapeHTML(l.module)}</div>
       </div>
-      <div class="tool-tag">${l.tool}</div>
-      <div class="lesson-date mono">${l.date}</div>
+      <div class="tool-tag">${escapeHTML(l.tool)}</div>
+      <div class="lesson-date mono">${escapeHTML(l.date)}</div>
     </div>
   `).join("");
 }
@@ -277,7 +288,7 @@ function renderToolChips() {
   const container = document.getElementById("toolChips");
   if (!container) return;
   container.innerHTML = tools.map(t => `
-    <button class="chip ${t === activeToolFilter ? 'active' : ''}" onclick="setToolFilter('${t.replace(/'/g, "\\'")}')">${t}</button>
+    <button class="chip ${t === activeToolFilter ? 'active' : ''}" onclick="setToolFilter('${escapeHTML(t.replace(/'/g, "\\'"))}')">${escapeHTML(t)}</button>
   `).join("");
 }
 
@@ -312,18 +323,18 @@ function renderCurriculum() {
     return `
       <div class="module-block">
         <div class="module-head">
-          <div class="module-name">${mod}</div>
+          <div class="module-name">${escapeHTML(mod)}</div>
           <div class="module-progress-bar"><div class="module-progress-fill" style="width:${pct}%"></div></div>
           <div class="module-count">${doneCount} / ${allInModule.length}</div>
         </div>
         <div class="lesson-path">
           ${modLessons.map((l, idx) => `
-            <div class="path-item ${l.status === 'done' ? 'done' : (l.status === 'progress' ? 'progress' : '')}" style="animation:card-in .4s cubic-bezier(.2,.8,.2,1) ${idx * 0.05}s backwards;" onclick="openLessonPage('${l.title.replace(/'/g, "\\'")}')">
+            <div class="path-item ${l.status === 'done' ? 'done' : (l.status === 'progress' ? 'progress' : '')}" style="animation:card-in .4s cubic-bezier(.2,.8,.2,1) ${idx * 0.05}s backwards;" onclick="openLessonPage('${escapeHTML(l.title.replace(/'/g, "\\'"))}')">
               <div class="path-icon" style="${toolGlowStyle(l.tool)}">${toolIcons[l.tool] || "🧠"}</div>
               <div class="path-content">
-                <div class="path-title">${l.title}</div>
-                ${l.desc ? `<div class="path-desc">${l.desc}</div>` : ""}
-                <div class="path-tool mono">${l.tool}</div>
+                <div class="path-title">${escapeHTML(l.title)}</div>
+                ${l.desc ? `<div class="path-desc">${escapeHTML(l.desc)}</div>` : ""}
+                <div class="path-tool mono">${escapeHTML(l.tool)}</div>
               </div>
               <div class="path-status">${l.status === 'done' ? '✓' : '›'}</div>
             </div>
@@ -412,7 +423,7 @@ function renderChecklist(taskText) {
         return `
           <label class="checklist-item" id="checkItem-${idx}">
             <input type="checkbox" onchange="toggleChecklistItem(${idx}, this.checked)">
-            <span>${cleanLine}</span>
+            <span>${escapeHTML(cleanLine)}</span>
           </label>
         `;
       }).join("")}
